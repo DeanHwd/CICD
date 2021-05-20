@@ -1,0 +1,15 @@
+- name: Check if {{ group }} group exists
+  uri:
+    url: http://review.cicd.com:8080/groups/{{ group }}
+    user: admin
+    password: secret
+    status_code: 200, 404
+  register: group_check
+- name: Create {{ group }} group in Gerrit
+  uri:
+    url: http://review.cicd.com:8080/a/groups/{{ group }}
+    method: PUT
+    user: admin
+    password: secret
+    status_code: 201
+  when: group_check.status==404

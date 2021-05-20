@@ -1,0 +1,96 @@
+version: '2'
+
+services:
+  gerrit:
+    image: gerritcodereview/gerrit:3.3.0
+    container_name: gerrit
+    hostname: 'review.cicd.com'
+    ports:
+      - '29418:29418'
+      - '8080:8080'
+    depends_on:
+      - ldap
+    volumes:
+      - gerrit_config:/var/gerrit/etc
+      - gerrit_git:/var/gerrit/git
+      - gerrit_db:/var/gerrit/db
+      - gerrit_index:/var/gerrit/index
+      - gerrit_cache:/var/gerrit/cache
+    environment:
+      - CANONICAL_WEB_URL=http://${EXTERNAL_IPV4_ADDRESS}:8080/
+    extra_hosts:
+      - 'review.cicd.com:${EXTERNAL_IPV4_ADDRESS}'
+  ldap:
+    image: osixia/openldap
+    container_name: ldap
+    ports:
+      - '389:389'
+      - '636:636'
+    environment:
+      - LDAP_ADMIN_PASSWORD=zaq1@WSX
+      - LDAP_ORGANISATTON=openldap
+      - LDAP_DOMAIN=dean.org
+    volumes:
+      - ldap_data:/var/lib/ldap
+      - ldap_config:/etc/ldap
+  ldap-admin:
+    image: osixia/phpldapadmin
+    container_name: ldap-admin
+    ports:
+      - '6443:443'
+    environment:
+      - PHPLDAPADMIN_LDAP_HOSTS=ldap
+    volumes:
+      - ldap_admin:/var/www/phpldapadmin
+  gitlab:
+    image: gitlab/gitlab-ce:13.10.3-ce.0
+    container_name: gitlab
+    restart: always
+    hostname: 'gitlab.cicd.com'
+    environment:
+      GITLAB_OMNIBUS_CONFIG: |
+        gitlab_rails['gitlab_shell_ssh_port'] = 1022
+    ports:
+      - '80:80'
+      - '443:443'
+      - '1022:22'
+    extra_hosts:
+      - 'gitlab.cicd.com:${EXTERNAL_IPV4_ADDRESS}'
+    volumes:
+      - gitlab_config:/etc/gitlab
+      - gitlab_log:/var/log/gitlab
+      - gitlab_data:/var/opt/gitlab
+  jenkins:
+    image: jenkins/jenkins:lts
+    container_name: jenkins
+    restart: always
+    hostname: 'jenkins.cicd.com'
+    ports:
+      - '8088:8080'
+      - '50000:50000'
+    extra_hosts:
+      - 'jenkins.cicd.com:${EXTERNAL_IPV4_ADDRESS}'
+    volumes:
+      - jenkins:/var/jenkins_home
+  sonar:
+    image: sonarqube:8.3.1-community
+    container_name: sonar
+    restart: always
+    hostname: 'sonar.cicd.com'
+    ports:
+      - '9000:9000'
+    extra_hosts:
+      - 'sonar.cicd.com:${EXTERNAL_IPV4_ADDRESS}'
+volumes:
+  gerrit_config:
+  gerrit_git:
+  gerrit_db:
+  gerrit_index:
+  gerrit_cache:
+  ldap_config:
+  ldap_data:
+  ldap_admin:
+  gitlab_config:
+  gitlab_log:
+  gitlab_data:
+  jenkins:

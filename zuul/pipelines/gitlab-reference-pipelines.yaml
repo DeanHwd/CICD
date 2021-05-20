@@ -1,0 +1,97 @@
+- pipeline:
+    name: check
+    manager: independent
+    require:
+      gitlab.com:
+        open: true
+    trigger:
+      gitlab.com:
+        - event: gl_merge_request
+          action: comment
+          comment: (?i)^\s*recheck\s*$
+        - event: gl_merge_request
+          action:
+            - opened
+            - changed
+    success:
+      gitlab.com:
+        comment: true
+        approval: true
+    failure:
+      gitlab.com:
+        comment: true
+        approval: false
+    start:
+      gitlab.com:
+        comment: true
+        approval: false
+
+- pipeline:
+    name: gate
+    manager: dependent
+    require:
+      gitlab.com:
+        approved: true
+        open: true
+        labels:
+          - gateit
+    trigger:
+      gitlab.com:
+        - event: gl_merge_request
+          action:
+            - approved
+        - event: gl_merge_request
+          action:
+            - labeled
+          labels:
+            - gateit
+    success:
+      gitlab.com:
+        comment: true
+        approval: true
+        merge: true
+    failure:
+      gitlab.com:
+        comment: true
+        approval: false
+    start:
+      gitlab.com:
+        comment: true
+        approval: false
+
+- pipeline:
+    name: promote
+    post-review: true
+    manager: supercedent
+    precedence: high
+    require:
+      gitlab.com:
+        merged: true
+    trigger:
+       gitlab.com:
+         - event: gl_merge_request
+           action: merged
+    success:
+      gitlab.com:
+        comment: true
+    failure:
+      gitlab.com:
+        comment: true
+
+- pipeline:
+    name: post
+    post-review: true
+    manager: independent
+    trigger:
+      gitlab.com:
+        - event: gl_push
+          ref: ^refs/heads/.*$
+
+- pipeline:
+    name: tag
+    post-review: true
+    manager: independent
+    trigger:
+      gitlab.com:
+        - event: gl_push
+          ref: ^refs/tags/.*$

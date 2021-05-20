@@ -1,0 +1,105 @@
+# Version 2 is the latest that is supported by docker-compose in
+# Ubuntu Xenial.
+version: '2'
+
+services:
+  gerritconfig:
+    image: zuul/zuul-executor
+    container_name: gerritconfig
+    environment:
+      - http_proxy
+      - https_proxy
+      - no_proxy=${no_proxy},gerrit
+    volumes:
+      - "sshkey:/var/ssh:z"
+      - "nodessh:/var/node:z"
+      - "certs:/var/certs:z"
+      - "./zuul/playbooks/:/var/playbooks/:z"
+      - "./zuul/tools/:/var/zuul-tools/:z"
+    # NOTE(pabelanger): Be sure to update this line each time we change the
+    # default version of ansible for Zuul.
+    extra_hosts:
+      - 'review.cicd.com:${EXTERNAL_IPV4_ADDRESS}'
+    command: "/usr/local/lib/zuul/ansible/2.9/bin/ansible-playbook /var/playbooks/setup.yaml"
+  zk:
+    image: zookeeper
+    container_name: zk
+    hostname: examples_zk_1.examples_default
+    volumes:
+      - "certs:/var/certs:z"
+      - "./zuul/zoo.cfg:/conf/zoo.cfg:z"
+    # introduced for 3.7.0: zookeeper shall wait for certificates to be available
+    # examples_zk_1.examples_default.pem is the last file created by ./tools/zk-ca.sh
+    command: |
+      /bin/sh -c '\
+        while [ ! -f /var/certs/keystores/examples_zk_1.examples_default.pem ] ; do \
+          sleep 1; \
+        done; \
+      zkServer.sh start-foreground'
+  mysql:
+    image: mariadb
+    container_name: zuul-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: zuul
+      MYSQL_USER: zuul
+      MYSQL_PASSWORD: secret
+      # Work around slow db startup when writing TZINFO data.
+      MYSQL_INITDB_SKIP_TZINFO: 1
+  scheduler:
+    image: zuul/zuul-scheduler
+    container_name: zuul-scheduler
+    depends_on:
+      - gerritconfig
+      - zk
+      - mysql
+    environment:
+      - http_proxy
+      - https_proxy
+      - no_proxy=${no_proxy},gerrit
+      - ZUUL_MYSQL_PASSWORD=secret
+    # FIXME: The scheduler has no ansible anymore so use the executor image.
+    #        This needs to be changes such that ansible is not required for startup.
+    volumes:
+      - "sshkey:/var/ssh:z"
+      - "certs:/var/certs:z"
+      - "./zuul/etc_zuul/:/etc/zuul/:z"
+      - "./zuul/playbooks/:/var/playbooks/:z"
+    command: "sh -c '/var/playbooks/wait-to-start.sh && zuul-scheduler -f'"
+  web:
+    image: zuul/zuul-web
+    container_name: zuul-web
+    depends_on:
+      - scheduler
+      - mysql
+    ports:
+      - "9001:9000"
+    environment:
+      ZUUL_MYSQL_PASSWORD: secret
+    volumes:
+      - "certs:/var/certs:z"
+      - "./zuul/etc_zuul/:/etc/zuul/:z"
+      - "./zuul/playbooks/:/var/playbooks/:z"
+    command: "sh -c '/var/playbooks/wait-to-start-gearman.sh && zuul-web -f'"
+  executor:
+    image: zuul/zuul-executor
+    container_name: zuul-executor
+    privileged: true
+    environment:
+      - http_proxy
+      - https_proxy
+      - no_proxy=${no_proxy},gerrit,scheduler
+      - ZUUL_MYSQL_PASSWORD=secret
+    depends_on:
+      - scheduler
+    volumes:
+      - "sshkey:/var/ssh:z"
+      - "logs:/srv/static/logs:z"
+      - "certs:/var/certs:z"
+      - "./zuul/etc_zuul/:/etc/zuul/:z"
+      - "./zuul/playbooks/:/var/playbooks/:z"
+volumes:
+  sshkey:
+  nodessh:
+  logs:
+  certs:

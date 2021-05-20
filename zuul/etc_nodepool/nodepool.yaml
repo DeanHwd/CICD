@@ -1,0 +1,22 @@
+zookeeper-servers:
+  - host: zk
+    port: 2281
+zookeeper-tls:
+  cert: /var/certs/certs/client.pem
+  key: /var/certs/keys/clientkey.pem
+  ca: /var/certs/certs/cacert.pem
+
+labels:
+  - name: ubuntu-focal
+
+providers:
+  - name: static-vms
+    driver: static
+    pools:
+      - name: main
+        nodes:
+          - name: node
+            labels: ubuntu-focal
+            host-key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOgHJYejINIKzUiuSJ2MN8uPc+dfFrZ9JH1hLWS8gI+g"
+            python-path: /usr/bin/python3
+            username: root
