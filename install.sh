@@ -2,8 +2,8 @@
 
 
 source .env
-gerrit_config_dir="/var/lib/docker/volumes/*gerrit_config/_data"
-gitlab_config_dir="/var/lib/docker/volumes/*gitlab_config/_data"
+gerrit_config_dir="/var/lib/docker/volumes/cicd_gerrit_config/_data"
+gitlab_config_dir="/var/lib/docker/volumes/cicd_gitlab_config/_data"
 
 function install_depandent() {
 	yum install -y yum-utils
@@ -15,7 +15,7 @@ function install_depandent() {
 
 function start_docker_compose() {
 	docker-compose -f docker-compose.yaml up -d
-	sleep 30
+	sleep 60
 	docker-compose -f docker-compose-zuul.yaml up -d
 }
 
@@ -35,7 +35,7 @@ function setup_ldap_for_gerrit() {
 	server = ldap://$EXTERNAL_IPV4_ADDRESS
         username=cn=admin,dc=dean,dc=org
         accountBase = dc=dean,dc=org
-        accountPattern = (&(objectClass=person)(uid=${username}))
+        accountPattern = (&(objectClass=person)(uid=\${username}))
         accountFullName = displayName
         accountEmailAddress = mail
 EOF
@@ -77,6 +77,28 @@ EOF
 	docker restart gitlab
 }
 
+function setup_gerrit_replication() {
+	cat > $gerrit_config_dir/replication.config << EOF
+[gerrit]
+        autoReload = true
+        replicateOnStartup = true
+[remote "gitlab"]
+        url = http://gitlab.cicd.com/\${name}.git
+        push = +refs/tags/*:refs/tags/*
+        push = +refs/heads/*:refs/heads/*
+        rescheduleDelay = 15
+        createMissingRepositories = true
+EOF
+	cat >> $gerrit_config_dir/secure.config << EOF
+[remote "gitlab"]
+        username = root
+        password = Dean123456
+EOF
+        docker restart gerrit
+	#ssh -p 29418 admin@$EXTERNAL_IPV4_ADDRESS gerrit plugin reload replication
+	#ssh -p 29418 admin@$EXTERNAL_IPV4_ADDRESS replication start
+}
+
 function destroy(){
 	docker-compose -f docker-compose-zuul.yaml down
 	docker-compose -f docker-compose.yaml down
@@ -101,6 +123,9 @@ case $1 in
 	   ;;
 	destroy)
 	   destroy 
+	   ;;
+	replication)
+	   setup_gerrit_replication
 	   ;;
 	setldap)
 	   setup_ldap_for_gerrit

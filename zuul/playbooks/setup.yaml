@@ -41,7 +41,7 @@
         user: admin
         password: secret
         body: "{{ lookup('file', '/var/ssh/admin.pub') }}"
-        status_code: 201
+        status_code: 201, 302
         headers:
           Content-Type: text/plain
 

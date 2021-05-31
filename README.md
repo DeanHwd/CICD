@@ -24,7 +24,7 @@ Inclouding below sw:
 pip3 install virtualenv
 virtualenv JJB
 source JJB/bin/activate
-pip install --user jenkins-job-builder
+pip install jenkins-job-builder
 ```
 
 ## Maintainer

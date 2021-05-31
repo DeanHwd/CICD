@@ -2,7 +2,7 @@ version: '2'
 
 services:
   gerrit:
-    image: gerritcodereview/gerrit:3.3.0
+    image: gerritcodereview/gerrit:3.4.0
     container_name: gerrit
     hostname: 'review.cicd.com'
     ports:
@@ -20,6 +20,7 @@ services:
       - CANONICAL_WEB_URL=http://${EXTERNAL_IPV4_ADDRESS}:8080/
     extra_hosts:
       - 'review.cicd.com:${EXTERNAL_IPV4_ADDRESS}'
+      - 'gitlab.cicd.com:${EXTERNAL_IPV4_ADDRESS}'
   ldap:
     image: osixia/openldap
     container_name: ldap
@@ -49,6 +50,7 @@ services:
     hostname: 'gitlab.cicd.com'
     environment:
       GITLAB_OMNIBUS_CONFIG: |
+        external_url 'http://gitlab.cicd.com'
         gitlab_rails['gitlab_shell_ssh_port'] = 1022
     ports:
       - '80:80'

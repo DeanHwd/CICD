@@ -81,23 +81,23 @@ services:
       - "./zuul/etc_zuul/:/etc/zuul/:z"
       - "./zuul/playbooks/:/var/playbooks/:z"
     command: "sh -c '/var/playbooks/wait-to-start-gearman.sh && zuul-web -f'"
-  executor:
-    image: zuul/zuul-executor
-    container_name: zuul-executor
-    privileged: true
-    environment:
-      - http_proxy
-      - https_proxy
-      - no_proxy=${no_proxy},gerrit,scheduler
-      - ZUUL_MYSQL_PASSWORD=secret
-    depends_on:
-      - scheduler
-    volumes:
-      - "sshkey:/var/ssh:z"
-      - "logs:/srv/static/logs:z"
-      - "certs:/var/certs:z"
-      - "./zuul/etc_zuul/:/etc/zuul/:z"
-      - "./zuul/playbooks/:/var/playbooks/:z"
+  #executor:
+  #  image: zuul/zuul-executor
+  #  container_name: zuul-executor
+  #  privileged: true
+  #  environment:
+  #    - http_proxy
+  #    - https_proxy
+  #    - no_proxy=${no_proxy},gerrit,scheduler
+  #    - ZUUL_MYSQL_PASSWORD=secret
+  #  depends_on:
+  #    - scheduler
+  #  volumes:
+  #    - "sshkey:/var/ssh:z"
+  #    - "logs:/srv/static/logs:z"
+  #    - "certs:/var/certs:z"
+  #    - "./zuul/etc_zuul/:/etc/zuul/:z"
+  #    - "./zuul/playbooks/:/var/playbooks/:z"
 volumes:
   sshkey:
   nodessh:
