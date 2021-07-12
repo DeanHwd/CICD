@@ -1,0 +1,27 @@
+---
+- scm:
+    name: mjs
+    scm:
+      - git:
+         url: git@github.com:xx/xx.git
+         branches:
+          - origin/master
+
+- job:
+    name: post-xxx-build
+    defaults: global
+    node: jenkins
+    scm:
+      - mjs
+    wrappers:
+      - workspace-cleanup
+      - timeout:
+          timeout: 1800
+          timeout-var: 'BUILD_TIMEOUT'
+          fail: true
+          type: absolute
+    builders:
+      - shell: |
+          #!/bin/bash
+          set -ex
+          npm install;npm run build

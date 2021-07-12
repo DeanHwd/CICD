@@ -95,8 +95,8 @@ EOF
         password = Dean123456
 EOF
         docker restart gerrit
-	#ssh -p 29418 admin@$EXTERNAL_IPV4_ADDRESS gerrit plugin reload replication
-	#ssh -p 29418 admin@$EXTERNAL_IPV4_ADDRESS replication start
+	ssh -p 29418 admin@$EXTERNAL_IPV4_ADDRESS gerrit plugin reload replication
+	ssh -p 29418 admin@$EXTERNAL_IPV4_ADDRESS replication start
 }
 
 function destroy(){

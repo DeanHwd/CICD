@@ -20,12 +20,14 @@ Inclouding below sw:
 ./install deploy
 ```
 - install JJB
+
 ```
 pip3 install virtualenv
 virtualenv JJB
 source JJB/bin/activate
 pip install jenkins-job-builder
 ```
+* JJB Documentation: https://jenkins-job-builder.readthedocs.io/
 
 ## Maintainer
 

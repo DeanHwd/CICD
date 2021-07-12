@@ -5,6 +5,7 @@ services:
     image: gerritcodereview/gerrit:3.4.0
     container_name: gerrit
     hostname: 'review.cicd.com'
+    restart: always
     ports:
       - '29418:29418'
       - '8080:8080'
@@ -24,6 +25,7 @@ services:
   ldap:
     image: osixia/openldap
     container_name: ldap
+    restart: always
     ports:
       - '389:389'
       - '636:636'
@@ -37,6 +39,7 @@ services:
   ldap-admin:
     image: osixia/phpldapadmin
     container_name: ldap-admin
+    restart: always
     ports:
       - '6443:443'
     environment:

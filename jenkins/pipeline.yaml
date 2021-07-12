@@ -1,0 +1,13 @@
+---
+- job:
+    name: pipeline-xxx
+    project-type: pipeline
+    triggers:
+      - timed: "30 0 * * *"
+    dsl: |
+      stage('post-xxx-build') {
+          catchError {
+              build job: 'post-xxx-build'
+          }
+          echo currentBuild.result
+      }

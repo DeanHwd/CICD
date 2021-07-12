@@ -1,0 +1,22 @@
+- defaults:
+    name: global
+    properties:
+      - build-discarder:
+          days-to-keep: 365
+          artifact-days-to-keep: 365
+
+##############
+# Publishers #
+##############
+
+- publisher:
+    name: tarball
+    publishers:
+      - ssh:
+          site: ftp
+          source: 'dist/*.tar,dist/*.tar.gz,dist/*.qcow2,dist/*.initrd,dist/*.vmlinuz,dist/*.kernel,dist/*.initramfs,dist/*.whl'
+          target: 'tarballs/{project}/'
+          remove-prefix: dist
+          command: /usr/bin/true
+          timeout: 1800000
+          flatten: true

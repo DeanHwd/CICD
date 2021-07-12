@@ -1,0 +1,11 @@
+---
+- job-template:
+    name: check-{name}-eslint
+    default: global
+    wrappers:
+      - workspace-cleanup
+    builders:
+      - shell: |
+          #!/bin/bash
+          set -ex
+          npm run lint
