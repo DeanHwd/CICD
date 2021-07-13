@@ -1,22 +1,16 @@
 ---
-- scm:
-    name: mjs
-    scm:
-      - git:
-         url: git@github.com:xx/xx.git
-         branches:
-          - origin/master
-
 - job:
-    name: post-xxx-build
+    name: post-update-jenkins
     defaults: global
     node: jenkins
     scm:
-      - mjs
+      - infra
+    triggers:
+      - github
     wrappers:
       - workspace-cleanup
       - timeout:
-          timeout: 1800
+          timeout: 360
           timeout-var: 'BUILD_TIMEOUT'
           fail: true
           type: absolute
@@ -24,4 +18,5 @@
       - shell: |
           #!/bin/bash
           set -ex
-          npm install;npm run build
+          source /root/JJB/bin/activate
+          jenkins-jobs --conf ~/.config/jenkins_jobs/jenkins_jobs.ini update --delete-old ./jenkins

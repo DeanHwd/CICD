@@ -1,9 +1,37 @@
+#############
+#  General  #
+#############
+
 - defaults:
     name: global
     properties:
       - build-discarder:
           days-to-keep: 365
           artifact-days-to-keep: 365
+
+
+#############
+#  Builder  #
+#############
+
+- builder:
+    name: print-template-name
+    builders:
+      - shell: 'echo JJB template: {template-name}'
+
+
+#########
+#  scm  #
+#########
+
+- scm:
+    name: infra
+    scm:
+      - git:
+         url: git@github.com:DeanHwd/infra.git
+         branches:
+          - origin/main
+
 
 ##############
 # Publishers #

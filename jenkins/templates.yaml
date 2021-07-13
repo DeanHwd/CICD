@@ -1,11 +1,10 @@
 ---
 - job-template:
-    name: check-{name}-eslint
+    name: check-{name}-py27
     default: global
     wrappers:
       - workspace-cleanup
     builders:
       - shell: |
           #!/bin/bash
-          set -ex
-          npm run lint
+          tox -e py27

@@ -19,6 +19,9 @@ Inclouding below sw:
 ```
 ./install deploy
 ```
+
+### Config Jenkins
+
 - install JJB
 
 ```
@@ -27,6 +30,19 @@ virtualenv JJB
 source JJB/bin/activate
 pip install jenkins-job-builder
 ```
+
+- config jenkins authorization
+```
+mkdir -p ~/.config/jenkins_jobs/
+cat ~/.config/jenkins_jobs/jenkins_jobs.ini < __EOF__
+[jenkins]
+user=root
+password=zaq1@WSX
+url=http://xx.xx.xx.xx:xx
+query_plugins_info=False
+__EOF__
+```
+
 * JJB Documentation: https://jenkins-job-builder.readthedocs.io/
 
 ## Maintainer

@@ -1,4 +1,4 @@
 - project:
-    name: xxx-xxx
+    name: test
     jobs:
-      - 'check-{name}-eslint'
+      - 'check-{name}-py27'

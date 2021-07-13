@@ -1,13 +1,13 @@
 ---
 - job:
-    name: pipeline-xxx
+    name: pipeline-infra
     project-type: pipeline
     triggers:
       - timed: "30 0 * * *"
     dsl: |
-      stage('post-xxx-build') {
+      stage('post-update-jenkins') {
           catchError {
-              build job: 'post-xxx-build'
+              build job: 'post-update-jenkins'
           }
           echo currentBuild.result
       }
