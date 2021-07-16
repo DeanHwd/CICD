@@ -22,6 +22,20 @@ Inclouding below sw:
 
 ### Config Jenkins
 
+- install plugins
+
+```
+GitHub
+GitHub Pull Request Builder
+Build Timeout
+Gearman Plugin
+Git Parameter Plug-In
+Git plugin
+Pipeline
+Publish Over SSH
+Workspace Cleanup
+```
+
 - install JJB
 
 ```

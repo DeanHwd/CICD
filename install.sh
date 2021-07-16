@@ -8,7 +8,9 @@ gitlab_config_dir="/var/lib/docker/volumes/cicd_gitlab_config/_data"
 function install_depandent() {
 	yum install -y yum-utils
 	yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
-	yum install docker-ce docker-ce-cli containerd.io docker-compose python-pip -y
+        yum install -y https://packages.endpoint.com/rhel/7/os/x86_64/endpoint-repo-1.7-1.x86_64.rpm
+        curl --silent --location https://rpm.nodesource.com/setup_14.x | sudo bash
+	yum install docker-ce docker-ce-cli containerd.io docker-compose python-pip python3-pip java git gcc-c++ make nodejs -y
 	systemctl enable docker;systemctl start docker
 }
 
