@@ -28,8 +28,8 @@ Inclouding below sw:
 GitHub
 GitHub Pull Request Builder
 Build Timeout
-Gearman Plugin
-Git Parameter Plug-In
+Gearman
+Git Parameter
 Git plugin
 Pipeline
 Publish Over SSH
@@ -48,7 +48,7 @@ pip install jenkins-job-builder
 - config jenkins authorization
 ```
 mkdir -p ~/.config/jenkins_jobs/
-cat ~/.config/jenkins_jobs/jenkins_jobs.ini < __EOF__
+cat > ~/.config/jenkins_jobs/jenkins_jobs.ini << __EOF__
 [jenkins]
 user=root
 password=zaq1@WSX
