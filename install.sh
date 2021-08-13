@@ -11,7 +11,32 @@ function install_depandent() {
         yum install -y https://packages.endpoint.com/rhel/7/os/x86_64/endpoint-repo-1.7-1.x86_64.rpm
         curl --silent --location https://rpm.nodesource.com/setup_14.x | sudo bash
 	yum install docker-ce docker-ce-cli containerd.io docker-compose python-pip python3-pip java git gcc-c++ make nodejs -y
+        cat > /etc/yum.repos.d/google-chrome.repo << __EOF__
+[google-chrome]
+name=google-chrome
+baseurl=http://dl.google.com/linux/chrome/rpm/stable/$basearch
+enabled=1
+gpgcheck=1
+gpgkey=https://dl-ssl.google.com/linux/linux_signing_key.pub
+__EOF__
+	yum install -y google-chrome-stable --nogpgcheck
 	systemctl enable docker;systemctl start docker
+}
+
+
+function install_ssr(){
+	sudo pip install https://github.com/shadowsocks/shadowsocks/archive/master.zip -U
+	cat > /etc/shadowsocks.json << __EOF__
+{
+  "server": "c33s2.jamjams.net",
+  "server_port": 12228,
+  "password": "gQvGMkz6MpuLKKLu",
+  "local_port": 1080,
+  "method": "aes-256-gcm"
+}
+__EOF__
+	sslocal -c /etc/shadowsocks.json -d start
+	yum install -y privoxy
 }
 
 
@@ -21,6 +46,7 @@ function start_docker_compose() {
 	docker-compose -f docker-compose-zuul.yaml up -d
 }
 
+
 function wait_for() {
 	while true
 	do
@@ -29,6 +55,7 @@ function wait_for() {
 		fi
 	done
 }
+
 
 function setup_ldap_for_gerrit() {
 	sed -i 's/DEVELOPMENT_BECOME_ANY_ACCOUNT/LDAP/' $gerrit_config_dir/gerrit.config
@@ -49,6 +76,7 @@ EOF
 EOF
 	docker restart gerrit
 }
+
 
 function setup_ldap_for_gitlab() {
 	cat >> $gitlab_config_dir/gitlab.rb << EOF
@@ -79,6 +107,7 @@ EOF
 	docker restart gitlab
 }
 
+
 function setup_gerrit_replication() {
 	cat > $gerrit_config_dir/replication.config << EOF
 [gerrit]
@@ -101,11 +130,13 @@ EOF
 	ssh -p 29418 admin@$EXTERNAL_IPV4_ADDRESS replication start
 }
 
+
 function destroy(){
 	docker-compose -f docker-compose-zuul.yaml down
 	docker-compose -f docker-compose.yaml down
 	docker volume ls | awk '{print $2}' | xargs docker volume rm
 }
+
 
 function usage() {
    echo "Usage: "
@@ -122,6 +153,8 @@ case $1 in
 	deploy)
 	   install_depandent
 	   start_docker_compose
+	ssr)
+	   install_ssr
 	   ;;
 	destroy)
 	   destroy 
