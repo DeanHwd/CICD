@@ -37,6 +37,9 @@ function install_ssr(){
 __EOF__
 	sslocal -c /etc/shadowsocks.json -d start
 	yum install -y privoxy
+	sed -i 's/listen-address  .*/listen-address  0.0.0.0:1087/' /etc/privoxy/config
+        sed -i '$aforward-socks5t / 127.0.0.1:1080 .' /etc/privoxy/config
+        systemctl enable privoxy;systemctl restart privoxy
 }
 
 
@@ -153,6 +156,7 @@ case $1 in
 	deploy)
 	   install_depandent
 	   start_docker_compose
+	   ;;
 	ssr)
 	   install_ssr
 	   ;;
