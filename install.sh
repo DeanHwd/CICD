@@ -14,10 +14,10 @@ function install_depandent() {
         cat > /etc/yum.repos.d/google-chrome.repo << __EOF__
 [google-chrome]
 name=google-chrome
-baseurl=http://dl.google.com/linux/chrome/rpm/stable/$basearch
+baseurl=http://dl.google.com/linux/chrome/rpm/stable/x86_64
 enabled=1
 gpgcheck=1
-gpgkey=https://dl-ssl.google.com/linux/linux_signing_key.pub
+gpgkey=https://dl.google.com/linux/linux_signing_key.pub
 __EOF__
 	yum install -y google-chrome-stable --nogpgcheck
 	systemctl enable docker;systemctl start docker
